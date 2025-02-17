@@ -27,7 +27,13 @@ jobs:
       - run:
           name: Send Slack Notification with APK Link
           command: |
-            TIMESTAMP=$(date +"%A, %B %d, %Y %I:%M %p")
-            APK_NAME="app-debug-$(date +%F-%H-%M-%S).apk"
-            APK_URL="https://$S3_BUCKET_NAME.s3.$AWS_REGION.amazonaws.com/$APK_NAME"
-            MESSAGE="✅ *APK Build Completed!*\n📅 Build Date: $TIMESTAMP\n📂 *Download APK:* <$APK_URL|Click Here
+            #!/bin/bash -eo pipefail
+TIMESTAMP=$(date +"%A, %B %d, %Y %I:%M %p")
+APK_NAME="app-debug-$(date +%F-%H-%M-%S).apk"
+APK_URL="https://$S3_BUCKET_NAME.s3.$AWS_REGION.amazonaws.com/$APK_NAME"
+MESSAGE="✅ *APK Build Completed!*\n📅 Build Date: $TIMESTAMP\n📂 *Download APK:* <$APK_URL|Click Here>\n🔗 CircleCI Build: $CIRCLE_BUILD_URL"
+
+curl -X POST -H 'Content-type: application/json' \
+--data "{\"text\":\"${MESSAGE}\"}" \
+"$SLACK_WEBHOOK_URL"
+
