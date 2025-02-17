@@ -2,14 +2,9 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/android:2023.08  # This includes Java and Android SDK
+      - image: cimg/android:2023.08  # Ensures Java and Android SDK are available
     steps:
       - checkout
-      - run:
-          name: Verify Java Installation
-          command: |
-            java -version
-            echo "JAVA_HOME: $JAVA_HOME"
       - run:
           name: Build Debug APK
           command: ./gradlew assembleDebug
@@ -26,14 +21,11 @@ jobs:
             aws s3 cp app/build/outputs/apk/debug/app-debug.apk s3://$S3_BUCKET_NAME/$APK_NAME
       - run:
           name: Send Slack Notification with APK Link
-          command: |
-            #!/bin/bash -eo pipefail
-TIMESTAMP=$(date +"%A, %B %d, %Y %I:%M %p")
-APK_NAME="app-debug-$(date +%F-%H-%M-%S).apk"
-APK_URL="https://$S3_BUCKET_NAME.s3.$AWS_REGION.amazonaws.com/$APK_NAME"
-MESSAGE="✅ *APK Build Completed!*\n📅 Build Date: $TIMESTAMP\n📂 *Download APK:* <$APK_URL|Click Here>\n🔗 CircleCI Build: $CIRCLE_BUILD_URL"
-
-curl -X POST -H 'Content-type: application/json' \
---data "{\"text\":\"${MESSAGE}\"}" \
-"$SLACK_WEBHOOK_URL"
-
+          command: |-
+            TIMESTAMP=$(date +"%A, %B %d, %Y %I:%M %p")
+            APK_NAME="app-debug-$(date +%F-%H-%M-%S).apk"
+            APK_URL="https://$S3_BUCKET_NAME.s3.$AWS_REGION.amazonaws.com/$APK_NAME"
+            MESSAGE="✅ *APK Build Completed!*\n📅 Build Date: $TIMESTAMP\n📂 *Download APK:* <$APK_URL|Click Here>\n🔗 CircleCI Build: $CIRCLE_BUILD_URL"
+            curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"${MESSAGE}\"}" \
+            "$SLACK_WEBHOOK_URL"
