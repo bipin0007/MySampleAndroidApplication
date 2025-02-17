@@ -15,4 +15,4 @@ jobs:
             MESSAGE="✅ *APK Build Completed!*\n📅 Build Date: $TIMESTAMP\n🔗 CircleCI Build: $CIRCLE_BUILD_URL"
             curl -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"${MESSAGE}\"}" \
-            "https://hooks.slack.com/services/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"
+            "$SLACK_WEBHOOK_URL"
