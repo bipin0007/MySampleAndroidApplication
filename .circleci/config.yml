@@ -7,7 +7,12 @@ jobs:
       - checkout
       - run:
           name: Build Debug APK
+          command: ./gradlew assembleDebug
+      - run:
+          name: Send Slack Notification
           command: |
-           TIMESTAMP=$(date +"%A, %B %d, %Y %I:%M %p")  # Example: Monday, February 19, 2025 03:45 PM
+            TIMESTAMP=$(date +"%A, %B %d, %Y %I:%M %p")  # Example: Monday, February 19, 2025 03:45 PM
+            MESSAGE="✅ *APK Build Completed!*\n📅 Build Date: $TIMESTAMP\n🔗 CircleCI Build: $CIRCLE_BUILD_URL"
             curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"✅ *APK Build Completed!*\n📅 Build Date: $TIMESTAMP\n🔗 CircleCI Build: $CIRCLE_BUILD_URL\"}" \ https://hooks.slack.com/services/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
+            --data "{\"text\":\"${MESSAGE}\"}" \
+            "https://hooks.slack.com/services/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"
